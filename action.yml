@@ -6,7 +6,7 @@ branding:
   color: blue
 inputs:
   version:
-    description: Version of the Python package tok-lang to install (for example 1.0.1); empty for the latest
+    description: Version of the Python package tok-lang to install (for example 1.0.2); empty for the latest
     required: false
     default: ""
   check:
