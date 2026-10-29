@@ -1,0 +1,27 @@
+name: test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  action:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: tok
+        uses: ./
+        with:
+          check: "test/**/*.tok"
+      - name: The command is on the PATH for later steps
+        shell: bash
+        run: |
+          tok --version
+          tok svg test/interlibrary-loan.tok -o loan.svg
+          test -s loan.svg
+          echo "installed ${{ steps.tok.outputs.version }}, errors ${{ steps.tok.outputs.errors }}"
