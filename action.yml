@@ -1,0 +1,66 @@
+name: Set up tok
+description: Install tok, the text language for BPMN process models and DMN decisions, and check the models of the repository
+author: tok-lang-bpm
+branding:
+  icon: check-square
+  color: blue
+inputs:
+  version:
+    description: Version of the Python package tok-lang to install (for example 1.0.1); empty for the latest
+    required: false
+    default: ""
+  check:
+    description: Glob of the models to check (** for any folder); an empty string only installs tok
+    required: false
+    default: "**/*.tok"
+  lang:
+    description: Language of the diagnostics, en or pl
+    required: false
+    default: en
+  fail-on:
+    description: The step fails on an error, or with warning also on a warning
+    required: false
+    default: error
+outputs:
+  version:
+    description: The version of tok that was installed
+    value: ${{ steps.install.outputs.version }}
+  errors:
+    description: The number of errors in the checked models
+    value: ${{ steps.check.outputs.errors }}
+  warnings:
+    description: The number of warnings in the checked models
+    value: ${{ steps.check.outputs.warnings }}
+runs:
+  using: composite
+  steps:
+    - id: install
+      shell: bash
+      env:
+        TOK_VERSION: ${{ inputs.version }}
+      run: |
+        PY="$(command -v python3 || command -v python)"
+        VENV="$RUNNER_TEMP/tok"
+        "$PY" -m venv "$VENV"
+        if [ -d "$VENV/Scripts" ]; then BIN="$VENV/Scripts"; else BIN="$VENV/bin"; fi
+        SPEC="tok-lang"
+        [ -n "$TOK_VERSION" ] && SPEC="tok-lang==$TOK_VERSION"
+        "$BIN/python" -m pip install --quiet --disable-pip-version-check "$SPEC"
+        echo "$BIN" >> "$GITHUB_PATH"
+        VERSION="$("$BIN/tok" --version | awk '{print $2}')"
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "tok $VERSION installed"
+    - id: check
+      if: inputs.check != ''
+      shell: bash
+      env:
+        TOK_CHECK: ${{ inputs.check }}
+        TOK_LANG: ${{ inputs.lang }}
+        TOK_FAIL_ON: ${{ inputs.fail-on }}
+      run: |
+        if [ -x "$RUNNER_TEMP/tok/Scripts/python" ] || [ -f "$RUNNER_TEMP/tok/Scripts/python.exe" ]; then
+          PY="$RUNNER_TEMP/tok/Scripts/python"
+        else
+          PY="$RUNNER_TEMP/tok/bin/python"
+        fi
+        "$PY" "$GITHUB_ACTION_PATH/check.py"
