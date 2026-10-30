@@ -24,8 +24,8 @@ jobs:
 
 | Input | Default | Meaning |
 |---|---|---|
-| `version` | the latest | version of the Python package `tok-lang` to install, for example `1.0.2` |
-| `check` | `**/*.tok` | glob of the models to check (`**` matches any folder); an empty string only installs tok |
+| `version` | the latest | version of the Python package `tok-lang` to install, for example `1.0.3` |
+| `check` | `**/*.tok` | glob of the models to check (`**` matches any folder): tok documents, or BPMN 2.0 XML files from any modelling tool (`**/*.bpmn`, checked with the BPMN rules of tok 1.0.3 or newer); an empty string only installs tok |
 | `lang` | `en` | language of the diagnostics: `en` or `pl` |
 | `fail-on` | `error` | `error`: the step fails when a model has errors; `warning`: also when it has warnings |
 
